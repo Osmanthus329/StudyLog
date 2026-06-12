@@ -2,6 +2,9 @@ from flask import Flask,render_template,url_for
 from flask_bootstrap import Bootstrap5
 import os
 from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Integer, String, Text,ForeignKey
 from form import Login,Register
 
 load_dotenv()
@@ -9,6 +12,24 @@ load_dotenv()
 app = Flask(__name__)
 Bootstrap5(app)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
+#Prepare DB
+class Base(DeclarativeBase):
+    pass
+
+db = SQLAlchemy(model_class=Base)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user.db"
+db.init_app(app)
+# Create User_DB
+class User(db.Model):
+    __tablename__ = "user_info"
+    id:Mapped[int] = mapped_column(Integer,primary_key=True)
+    username: Mapped[str] = mapped_column(String,nullable=False)
+    email:Mapped[str] = mapped_column(String,nullable=False,unique=True)
+    password:Mapped[str] = mapped_column(String,nullable=False)
+
+#Create DB
+with app.app_context():
+    db.create_all()
 
 @app.route("/")
 def home():
