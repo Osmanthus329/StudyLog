@@ -2,6 +2,5 @@
 {% block title %}login{% endblock %} {% block content%}{% with messages =
 get_flashed_messages(with_categories=True) %} {% if messages %} {% for
 category,message in messages %}
-<p>category: {{ category }}</p>
 <p class="alert alert-{{ category }}">{{message}}</p>
 {% endfor %} {% endif %} {% endwith %} {{ render_form(form) }} {% endblock %}

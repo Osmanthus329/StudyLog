@@ -50,10 +50,14 @@ def home():
 def register():
     register_form = Register()
     if register_form.validate_on_submit():
+        exist_user = db.session.execute(db.select(User).where(User.email == register_form.email.data)).scalar() 
+        if exist_user:
+            flash("This email is already registered. Please login here.", "danger")
+            return redirect(url_for("login"))
         new_user = User(
             username = register_form.name.data,
             email = register_form.email.data,
-            password = generate_password_hash(password=register_form.password.data,salt_length=8)
+            password = generate_password_hash(password=register_form.password.data)
         )
         db.session.add(new_user)
         db.session.commit()
