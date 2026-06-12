@@ -37,6 +37,14 @@ class User(UserMixin,db.Model):
     username: Mapped[str] = mapped_column(String,nullable=False)
     email:Mapped[str] = mapped_column(String,nullable=False,unique=True)
     password:Mapped[str] = mapped_column(String,nullable=False)
+    subject = relationship("Subject",back_populates="user") 
+#Create Subject_DB
+class Subject(db.Model):
+    __tablename__ = "subject"
+    id:Mapped[int] = mapped_column(Integer,primary_key=True)
+    user_id:Mapped[int] = mapped_column(ForeignKey("user_info.id"))
+    name:Mapped[str] = mapped_column(String,unique=True)
+    user = relationship("User",back_populates="subject")
 
 #Create DB
 with app.app_context():
