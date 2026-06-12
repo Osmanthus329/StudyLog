@@ -1,11 +1,12 @@
-from flask import Flask,render_template,url_for
+from flask import Flask,render_template,url_for,redirect
 from flask_bootstrap import Bootstrap5
 import os
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Text,ForeignKey
-from flask_login import LoginManager,UserMixin
+from flask_login import LoginManager,UserMixin,login_user,logout_user
+from werkzeug.security import generate_password_hash, check_password_hash
 from form import Login,Register
 
 load_dotenv()
@@ -20,7 +21,7 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return db.session.get(User, int(user_id))
 
 #Prepare DB
 class Base(DeclarativeBase):
@@ -45,9 +46,19 @@ with app.app_context():
 def home():
     return render_template("base.html")
 
-@app.route("/register")
+@app.route("/register",methods = ["GET","POST"])
 def register():
     register_form = Register()
+    if register_form.validate_on_submit():
+        new_user = User(
+            username = register_form.name.data,
+            email = register_form.email.data,
+            password = generate_password_hash(password=register_form.password.data,salt_length=8)
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user)
+        return redirect(url_for("home"))
     return render_template("register.html",form = register_form)
 
 @app.route("/login")
