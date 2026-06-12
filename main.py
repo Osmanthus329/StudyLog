@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Text,ForeignKey
+from flask_login import LoginManager,UserMixin
 from form import Login,Register
 
 load_dotenv()
@@ -12,6 +13,15 @@ load_dotenv()
 app = Flask(__name__)
 Bootstrap5(app)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
+
+#Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
 #Prepare DB
 class Base(DeclarativeBase):
     pass
@@ -20,7 +30,7 @@ db = SQLAlchemy(model_class=Base)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user.db"
 db.init_app(app)
 # Create User_DB
-class User(db.Model):
+class User(UserMixin,db.Model):
     __tablename__ = "user_info"
     id:Mapped[int] = mapped_column(Integer,primary_key=True)
     username: Mapped[str] = mapped_column(String,nullable=False)
