@@ -2,7 +2,7 @@ from flask import Flask,render_template,url_for
 from flask_bootstrap import Bootstrap5
 import os
 from dotenv import load_dotenv
-from form import Login
+from form import Login,Register
 
 load_dotenv()
 
@@ -13,6 +13,11 @@ app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 @app.route("/")
 def home():
     return render_template("base.html")
+
+@app.route("/register")
+def register():
+    register_form = Register()
+    return render_template("register.html",form = register_form)
 
 @app.route("/login")
 def login():
