@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Text,ForeignKey
-from flask_login import LoginManager,UserMixin,login_user,logout_user
+from flask_login import LoginManager,UserMixin,login_user,logout_user,current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from form import Login,Register
 
@@ -44,7 +44,7 @@ with app.app_context():
 
 @app.route("/")
 def home():
-    return render_template("base.html")
+    return render_template("base.html",current_user = current_user)
 
 @app.route("/register",methods = ["GET","POST"])
 def register():
@@ -63,7 +63,7 @@ def register():
         db.session.commit()
         login_user(new_user)
         return redirect(url_for("home"))
-    return render_template("register.html",form = register_form)
+    return render_template("register.html",form = register_form,current_user = current_user)
 
 @app.route("/login",methods = ["GET","POST"])
 def login():
@@ -80,7 +80,7 @@ def login():
         else:
             flash("This is not correct email. Please enter again.","danger")
             return redirect(url_for("login"))
-    return render_template("login.html",form = login_form)
+    return render_template("login.html",form = login_form,current_user = current_user)
 
 @app.route("/logout")
 def logout():

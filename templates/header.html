@@ -46,6 +46,7 @@
                 User
               </a>
               <ul class="dropdown-menu">
+                {% if not current_user.is_authenticated %}
                 <li>
                   <a class="dropdown-item" href="{{url_for('register')}}"
                     >Register</a
@@ -54,11 +55,13 @@
                 <li>
                   <a class="dropdown-item" href="{{url_for('login')}}">Login</a>
                 </li>
+                {% else %}
                 <li>
                   <a class="dropdown-item" href="{{url_for('logout')}}"
                     >Logout</a
                   >
                 </li>
+                {% endif %}
               </ul>
             </li>
           </ul>
