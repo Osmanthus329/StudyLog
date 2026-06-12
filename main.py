@@ -1,4 +1,4 @@
-from flask import Flask,render_template,url_for,redirect
+from flask import Flask,render_template,url_for,redirect,flash
 from flask_bootstrap import Bootstrap5
 import os
 from dotenv import load_dotenv
@@ -61,9 +61,21 @@ def register():
         return redirect(url_for("home"))
     return render_template("register.html",form = register_form)
 
-@app.route("/login")
+@app.route("/login",methods = ["GET","POST"])
 def login():
     login_form = Login()
+    if login_form.validate_on_submit():
+        user = db.session.execute(db.select(User).where(User.email == login_form.email.data)).scalar() 
+        if user:
+            if check_password_hash(pwhash=user.password,password=login_form.password.data):
+                login_user(user)
+                return redirect(url_for("home"))
+            else:
+                flash("This is not correct password. Please enter again.","danger")
+                return redirect(url_for("login"))
+        else:
+            flash("This is not correct email. Please enter again.","danger")
+            return redirect(url_for("login"))
     return render_template("login.html",form = login_form)
 
 if __name__ == "__main__":
