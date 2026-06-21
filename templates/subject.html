@@ -1,1 +1,3 @@
-{% extends "header.html" %} {% block title %}Subject{% endblock %}
+{% from 'bootstrap5/form.html' import render_form %}{% extends "header.html" %}
+{% block title %}Subject{% endblock %} {% block content
+%}{{render_form(form)}}{% endblock %}

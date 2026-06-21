@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Text,ForeignKey
 from flask_login import LoginManager,UserMixin,login_user,logout_user,current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from form import Login,Register
+from form import Login,Register,MySubject
 
 load_dotenv()
 
@@ -98,7 +98,8 @@ def logout():
 
 @app.route("/subject")
 def subject():
-    return render_template("subject.html")
+    subject_form = MySubject()
+    return render_template("subject.html",form = subject_form)
 
 if __name__ == "__main__":
     app.run(debug=True)
