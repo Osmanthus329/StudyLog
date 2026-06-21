@@ -8,7 +8,7 @@ from sqlalchemy import Integer, String, Text,ForeignKey,Date
 from datetime import date
 from flask_login import LoginManager,UserMixin,login_user,logout_user,current_user,login_required
 from werkzeug.security import generate_password_hash, check_password_hash
-from form import Login,Register,MySubject
+from form import Login,Register,MySubject,MyTask
 
 load_dotenv()
 
@@ -38,7 +38,7 @@ class User(UserMixin,db.Model):
     username: Mapped[str] = mapped_column(String,nullable=False)
     email:Mapped[str] = mapped_column(String,nullable=False,unique=True)
     password:Mapped[str] = mapped_column(String,nullable=False)
-    subject = relationship("Subject",back_populates="user") 
+    subjects = relationship("Subject",back_populates="user") 
 #Create Subject_DB
 class Subject(db.Model):
     __tablename__ = "subject"
@@ -46,20 +46,20 @@ class Subject(db.Model):
     user_id:Mapped[int] = mapped_column(ForeignKey("user_info.id"))
     name:Mapped[str] = mapped_column(String,nullable=False)
     description:Mapped[str] = mapped_column(Text)
-    user = relationship("User",back_populates="subject")
-    task = relationship("Task",back_populates="subject")
+    user = relationship("User",back_populates="subjects")
+    tasks = relationship("Task",back_populates="subject")
 #Create Task_DB
 class Task(db.Model):
     __tablename__ = "task"
     id:Mapped[int] = mapped_column(Integer,primary_key= True)
     user_id:Mapped[int] = mapped_column(ForeignKey("user_info.id"))
-    subject:Mapped[str] = mapped_column(ForeignKey("subject.name"))
+    subject_id:Mapped[str] = mapped_column(ForeignKey("subject.id"))
     name:Mapped[str] = mapped_column(String,nullable=False)
     deadline:Mapped[date] = mapped_column(Date,nullable=False)
     priority:Mapped[str] = mapped_column(String)
     status:Mapped[str] = mapped_column(String)
     memo:Mapped[str] = mapped_column(Text)
-    subject - relationship("Subject",back_populates="task")
+    subject = relationship("Subject",back_populates="tasks")
 #Create DB
 with app.app_context():
     db.create_all()
@@ -164,6 +164,12 @@ def delete_subject():
     db.session.delete(mysubject)
     db.session.commit()
     return redirect(url_for("subject"))
+
+@app.route("/task")
+@login_required
+def task():
+    return render_template("task.html")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
