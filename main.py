@@ -96,9 +96,21 @@ def logout():
     logout_user()
     return redirect(url_for("home"))
 
-@app.route("/subject")
+@app.route("/subject",methods = ["GET","POST"])
 def subject():
+    if not current_user.is_authenticated:
+        flash("You aren't logging. Please login.",category="danger")
+        return redirect(url_for("login"))
     subject_form = MySubject()
+    if subject_form.validate_on_submit():
+        new_subject = Subject(
+            user_id = current_user.id,
+            name = subject_form.subject_name.data,
+            description = subject_form.description.data
+        )
+        db.session.add(new_subject)
+        db.session.commit()
+        return redirect(url_for('home'))
     return render_template("subject.html",form = subject_form)
 
 if __name__ == "__main__":
