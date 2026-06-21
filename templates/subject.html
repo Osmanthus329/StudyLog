@@ -8,7 +8,15 @@ content %}
       <div class="card-body">
         <h3 class="fs-2 text-body-emphasis">{{subject.name}}</h3>
         <p class="card-text">{{subject.description}}</p>
-        <a href="#" class="icon-link"> Edit content</a>
+        <p><a href="#" class="icon-link"> Edit subject</a></p>
+        <p>
+          <a
+            href="{{url_for('delete_subject',id=subject.id)}}"
+            class="icon-link"
+          >
+            delete subject</a
+          >
+        </p>
       </div>
     </div>
     {% endfor %}

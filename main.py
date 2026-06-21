@@ -1,4 +1,4 @@
-from flask import Flask,render_template,url_for,redirect,flash
+from flask import Flask,render_template,url_for,redirect,flash,request
 from flask_bootstrap import Bootstrap5
 import os
 from dotenv import load_dotenv
@@ -9,7 +9,9 @@ from flask_login import LoginManager,UserMixin,login_user,logout_user,current_us
 from werkzeug.security import generate_password_hash, check_password_hash
 from form import Login,Register,MySubject
 
+
 load_dotenv()
+
 
 app = Flask(__name__)
 Bootstrap5(app)
@@ -117,6 +119,14 @@ def add_subject():
         db.session.commit()
         return redirect(url_for('home'))
     return render_template("add_subject.html",form = subject_form)
+
+@app.route("/delete_subject")
+def delete_subject():
+    subject_id = request.args.get("id")
+    mysubject = db.get_or_404(Subject,subject_id)
+    db.session.delete(mysubject)
+    db.session.commit()
+    return redirect(url_for("subject"))
 
 if __name__ == "__main__":
     app.run(debug=True)
