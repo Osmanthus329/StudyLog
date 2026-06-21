@@ -96,8 +96,13 @@ def logout():
     logout_user()
     return redirect(url_for("home"))
 
-@app.route("/add_subject",methods = ["GET","POST"])
+@app.route("/subject")
 def subject():
+    subjects = db.session.execute(db.select(Subject)).scalars().all()
+    return render_template("subject.html",subjects = subjects)
+
+@app.route("/add_subject",methods = ["GET","POST"])
+def add_subject():
     if not current_user.is_authenticated:
         flash("You aren't logging. Please login.",category="danger")
         return redirect(url_for("login"))

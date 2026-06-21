@@ -1,0 +1,25 @@
+{% extends 'header.html' %} {% block title %}Subject{% endblock %} {% block
+content %}
+<div class="container px-4 py-5" id="featured-3">
+  <h2 class="pb-2 border-bottom">All Subjects</h2>
+  <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+    {% for subject in subjects %}
+    <div class="card" style="width: 18rem">
+      <div class="card-body">
+        <h3 class="fs-2 text-body-emphasis">{{subject.name}}</h3>
+        <p class="card-text">{{subject.description}}</p>
+        <a href="#" class="icon-link"> Edit content</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<a
+  href="{{url_for('add_subject')}}"
+  class="btn btn-primary d-inline-flex align-items-center"
+  type="button"
+>
+  Add Subject
+</a>
+{% endblock %}
