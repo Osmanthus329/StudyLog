@@ -43,7 +43,8 @@ class Subject(db.Model):
     __tablename__ = "subject"
     id:Mapped[int] = mapped_column(Integer,primary_key=True)
     user_id:Mapped[int] = mapped_column(ForeignKey("user_info.id"))
-    name:Mapped[str] = mapped_column(String,unique=True)
+    name:Mapped[str] = mapped_column(String,unique=True,nullable=False)
+    description:Mapped[str] = mapped_column(Text)
     user = relationship("User",back_populates="subject")
 
 #Create DB
