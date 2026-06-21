@@ -98,14 +98,14 @@ def logout():
 
 @app.route("/subject")
 def subject():
+    if not current_user.is_authenticated:
+        flash("You aren't logging. Please login.",category="danger")
+        return redirect(url_for("login"))
     subjects = db.session.execute(db.select(Subject)).scalars().all()
     return render_template("subject.html",subjects = subjects)
 
 @app.route("/add_subject",methods = ["GET","POST"])
 def add_subject():
-    if not current_user.is_authenticated:
-        flash("You aren't logging. Please login.",category="danger")
-        return redirect(url_for("login"))
     subject_form = MySubject()
     if subject_form.validate_on_submit():
         new_subject = Subject(
@@ -115,7 +115,7 @@ def add_subject():
         )
         db.session.add(new_subject)
         db.session.commit()
-        return redirect(url_for('home'))
+        return redirect(url_for("subject"))
     return render_template("add_subject.html",form = subject_form)
 
 @app.route("/edit_subject",methods = ["GET","POST"])
