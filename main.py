@@ -1,11 +1,11 @@
-from flask import Flask,render_template,url_for,redirect,flash,request
+from flask import Flask,render_template,url_for,redirect,flash,request,abort
 from flask_bootstrap import Bootstrap5
 import os
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Text,ForeignKey
-from flask_login import LoginManager,UserMixin,login_user,logout_user,current_user
+from flask_login import LoginManager,UserMixin,login_user,logout_user,current_user,login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from form import Login,Register,MySubject
 
@@ -43,7 +43,7 @@ class Subject(db.Model):
     __tablename__ = "subject"
     id:Mapped[int] = mapped_column(Integer,primary_key=True)
     user_id:Mapped[int] = mapped_column(ForeignKey("user_info.id"))
-    name:Mapped[str] = mapped_column(String,unique=True,nullable=False)
+    name:Mapped[str] = mapped_column(String,nullable=False)
     description:Mapped[str] = mapped_column(Text)
     user = relationship("User",back_populates="subject")
 
@@ -101,10 +101,11 @@ def subject():
     if not current_user.is_authenticated:
         flash("You aren't logging. Please login.",category="danger")
         return redirect(url_for("login"))
-    subjects = db.session.execute(db.select(Subject)).scalars().all()
+    subjects = db.session.execute(db.select(Subject).where(Subject.user_id == current_user.id)).scalars().all()
     return render_template("subject.html",subjects = subjects)
 
 @app.route("/add_subject",methods = ["GET","POST"])
+@login_required
 def add_subject():
     subject_form = MySubject()
     if subject_form.validate_on_submit():
@@ -119,10 +120,20 @@ def add_subject():
     return render_template("add_subject.html",form = subject_form)
 
 @app.route("/edit_subject",methods = ["GET","POST"])
+@login_required
 def edit_subject():
-    subject_form = MySubject()
     subject_id = request.args.get("id")
     subject = db.get_or_404(Subject,subject_id)
+    if subject.user_id != current_user.id:
+        abort(403)
+    
+    subject_form = MySubject()
+
+    if request.method == "GET":
+        subject_form.subject_name.data = subject.name
+        subject_form.description.data = subject.description
+    
+    
     if subject_form.validate_on_submit():
         subject.name = subject_form.subject_name.data
         subject.description = subject_form.description.data
@@ -130,10 +141,13 @@ def edit_subject():
         return redirect(url_for("subject"))
     return render_template("edit_subject.html",form = subject_form)
 
-@app.route("/delete_subject")
+@app.route("/delete_subject" methods = ["POST"])
+@login_required
 def delete_subject():
     subject_id = request.args.get("id")
     mysubject = db.get_or_404(Subject,subject_id)
+    if mysubject.user_id != current_user.id:
+        abort(403)
     db.session.delete(mysubject)
     db.session.commit()
     return redirect(url_for("subject"))
