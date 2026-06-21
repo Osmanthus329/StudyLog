@@ -9,9 +9,7 @@ from flask_login import LoginManager,UserMixin,login_user,logout_user,current_us
 from werkzeug.security import generate_password_hash, check_password_hash
 from form import Login,Register,MySubject
 
-
 load_dotenv()
-
 
 app = Flask(__name__)
 Bootstrap5(app)
@@ -119,6 +117,18 @@ def add_subject():
         db.session.commit()
         return redirect(url_for('home'))
     return render_template("add_subject.html",form = subject_form)
+
+@app.route("/edit_subject",methods = ["GET","POST"])
+def edit_subject():
+    subject_form = MySubject()
+    subject_id = request.args.get("id")
+    subject = db.get_or_404(Subject,subject_id)
+    if subject_form.validate_on_submit():
+        subject.name = subject_form.subject_name.data
+        subject.description = subject_form.description.data
+        db.session.commit()
+        return redirect(url_for("subject"))
+    return render_template("edit_subject.html",form = subject_form)
 
 @app.route("/delete_subject")
 def delete_subject():
