@@ -169,7 +169,7 @@ def delete_subject():
 @login_required
 def task():
     tasks = db.session.execute(db.select(Task).where(Task.user_id == current_user.id)).scalars().all()
-    
+
     return render_template("task.html",tasks = tasks)
 
 @app.route("/add_task",methods = ["GET","POST"])
@@ -178,7 +178,7 @@ def add_task():
     task_form = MyTask()
     task_form.subject_name.choices = [
     (t.id, t.name)
-    for t in Subject.query.all()
+    for t in Subject.query.filter_by(user_id=current_user.id).all()
 ]
     if task_form.validate_on_submit():
         new_task = Task(
@@ -194,6 +194,39 @@ def add_task():
         db.session.commit()
         return redirect(url_for("task"))
     return render_template("add_task.html",form = task_form)
+
+@app.route("/edit_task",methods = ["GET","POST"])
+@login_required
+def edit_task():
+    task_id = request.args.get("id")
+    task = db.get_or_404(Task,task_id)
+    task_form = MyTask()
+    task_form.subject_name.choices = [
+    (t.id, t.name)
+    for t in Subject.query.filter_by(user_id=current_user.id).all()
+]
+    
+    if task.user_id != current_user.id:
+        abort(403)
+    if request.method == "GET":
+        task_form.task_name.data = task.name
+        task_form.subject_name.data = task.subject_id
+        task_form.deadline.data = task.deadline
+        task_form.priority.data = task.priority
+        task_form.status.data = task.status
+        task_form.memo.data = task.memo
+    
+    if task_form.validate_on_submit():
+        task.name = task_form.task_name.data
+        task.subject_id = task_form.subject_name.data
+        task.deadline = task_form.deadline.data
+        task.priority = task_form.priority.data
+        task.status = task_form.status.data
+        task.memo = task_form.memo.data
+        db.session.commit()
+        return redirect(url_for("task"))
+
+    return render_template("edit_task.html",form = task_form)
 
 if __name__ == "__main__":
     app.run(debug=True)

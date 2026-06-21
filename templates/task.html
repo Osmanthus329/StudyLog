@@ -12,7 +12,12 @@
     />
     <label class="form-check-label" for="firstCheckbox"
       >{{task.name}} {{task.subject.name}} {{task.deadline}} {{task.priority}}
-      {{task.status}} {{task.memo}}</label
+      {{task.status}} {{task.memo}}
+      <p>
+        <a href="{{url_for('edit_task',id=task.id)}}" class="icon-link">
+          Edit subject</a
+        >
+      </p></label
     >
   </li>
   {% endfor %}
