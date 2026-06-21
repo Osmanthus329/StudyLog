@@ -4,7 +4,8 @@ import os
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import Integer, String, Text,ForeignKey
+from sqlalchemy import Integer, String, Text,ForeignKey,Date
+from datetime import date
 from flask_login import LoginManager,UserMixin,login_user,logout_user,current_user,login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from form import Login,Register,MySubject
@@ -46,7 +47,19 @@ class Subject(db.Model):
     name:Mapped[str] = mapped_column(String,nullable=False)
     description:Mapped[str] = mapped_column(Text)
     user = relationship("User",back_populates="subject")
-
+    task = relationship("Task",back_populates="subject")
+#Create Task_DB
+class Task(db.Model):
+    __tablename__ = "task"
+    id:Mapped[int] = mapped_column(Integer,primary_key= True)
+    user_id:Mapped[int] = mapped_column(ForeignKey("user_info.id"))
+    subject:Mapped[str] = mapped_column(ForeignKey("subject.name"))
+    name:Mapped[str] = mapped_column(String,nullable=False)
+    deadline:Mapped[date] = mapped_column(Date,nullable=False)
+    priority:Mapped[str] = mapped_column(String)
+    status:Mapped[str] = mapped_column(String)
+    memo:Mapped[str] = mapped_column(Text)
+    subject - relationship("Subject",back_populates="task")
 #Create DB
 with app.app_context():
     db.create_all()
