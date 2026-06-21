@@ -141,7 +141,7 @@ def edit_subject():
         return redirect(url_for("subject"))
     return render_template("edit_subject.html",form = subject_form)
 
-@app.route("/delete_subject" methods = ["POST"])
+@app.route("/delete_subject" ,methods = ["POST"])
 @login_required
 def delete_subject():
     subject_id = request.args.get("id")
