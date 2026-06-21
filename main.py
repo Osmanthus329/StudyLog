@@ -168,8 +168,32 @@ def delete_subject():
 @app.route("/task")
 @login_required
 def task():
-    return render_template("task.html")
+    tasks = db.session.execute(db.select(Task).where(Task.user_id == current_user.id)).scalars().all()
+    
+    return render_template("task.html",tasks = tasks)
 
+@app.route("/add_task",methods = ["GET","POST"])
+@login_required
+def add_task():
+    task_form = MyTask()
+    task_form.subject_name.choices = [
+    (t.id, t.name)
+    for t in Subject.query.all()
+]
+    if task_form.validate_on_submit():
+        new_task = Task(
+            user_id = current_user.id,
+            subject_id = task_form.subject_name.data,
+            name = task_form.task_name.data,
+            deadline = task_form.deadline.data,
+            priority = task_form.priority.data,
+            status = task_form.status.data,
+            memo = task_form.memo.data
+        )
+        db.session.add(new_task)
+        db.session.commit()
+        return redirect(url_for("task"))
+    return render_template("add_task.html",form = task_form)
 
 if __name__ == "__main__":
     app.run(debug=True)
