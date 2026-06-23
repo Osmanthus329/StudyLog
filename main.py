@@ -240,5 +240,16 @@ def change_task_status():
     db.session.commit()
     return redirect(url_for("task"))
 
+@app.route("/delete_task")
+@login_required
+def delete_task():
+    completed_task_id = request.args.get("id")
+    completed_task = db.get_or_404(Task,completed_task_id)
+    if completed_task.user_id != current_user.id:
+        abort(403)
+    db.session.delete(completed_task)
+    db.session.commit()
+    return redirect(url_for("task"))
+
 if __name__ == "__main__":
     app.run(debug=True)
