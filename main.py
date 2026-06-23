@@ -229,7 +229,7 @@ def edit_task():
 
     return render_template("edit_task.html",form = task_form)
 
-@app.route("/delete_task",methods = ["POST"])
+@app.route("/change_task",methods = ["POST"])
 @login_required
 def change_task_status():
     task_id=request.form.get("task_id")
@@ -240,7 +240,7 @@ def change_task_status():
     db.session.commit()
     return redirect(url_for("task"))
 
-@app.route("/delete_task")
+@app.route("/delete_task",methods = ["GET","POST"])
 @login_required
 def delete_task():
     completed_task_id = request.args.get("id")
