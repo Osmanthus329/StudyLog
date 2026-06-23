@@ -154,7 +154,7 @@ def edit_subject():
         return redirect(url_for("subject"))
     return render_template("edit_subject.html",form = subject_form)
 
-@app.route("/delete_subject" ,methods = ["POST"])
+@app.route("/delete_subject" ,methods = ["GET","POST"])
 @login_required
 def delete_subject():
     subject_id = request.args.get("id")
@@ -168,9 +168,10 @@ def delete_subject():
 @app.route("/task")
 @login_required
 def task():
-    tasks = db.session.execute(db.select(Task).where(Task.user_id == current_user.id)).scalars().all()
+    tasks = Task.query.filter(Task.user_id == current_user.id,Task.status != "完了")
+    completed_tasks = Task.query.filter(Task.user_id == current_user.id,Task.status == "完了")
 
-    return render_template("task.html",tasks = tasks)
+    return render_template("task.html",tasks = tasks,completed_tasks = completed_tasks)
 
 @app.route("/add_task",methods = ["GET","POST"])
 @login_required
@@ -227,6 +228,17 @@ def edit_task():
         return redirect(url_for("task"))
 
     return render_template("edit_task.html",form = task_form)
+
+@app.route("/delete_task",methods = ["POST"])
+@login_required
+def change_task_status():
+    task_id=request.form.get("task_id")
+    changed_task = db.get_or_404(Task,task_id)
+    if changed_task.user_id != current_user.id:
+        abort(403)
+    changed_task.status = "完了"
+    db.session.commit()
+    return redirect(url_for("task"))
 
 if __name__ == "__main__":
     app.run(debug=True)
